@@ -1,0 +1,4 @@
+GEMINI_API_KEY=your_gemini_key_here
+SPOTIPY_CLIENT_ID=your_spotify_client_id_here
+SPOTIPY_CLIENT_SECRET=your_spotify_client_secret_here
+SPOTIPY_REDIRECT_URI=your_spotify_redirect_uri_here
