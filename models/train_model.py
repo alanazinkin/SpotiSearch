@@ -8,8 +8,7 @@ from cleanData.clean_dataframe import clean_dataframe
 from config import device, base_text_model
 
 
-def load_data():
-    filePath = "../data/spotifyData/spotify_all_songs_with_review_cols.csv"
+def load_data(filePath= "../data/spotifyData/spotify_all_songs_with_review_cols.csv"):
     df = pd.read_csv(filePath)
     print(df.head())
     feature_cols, targets, texts, song_embeds = clean_dataframe(df)

@@ -13,7 +13,7 @@ st.sidebar.header("Search Settings")
 rerank_factor = st.sidebar.slider(
     "Rerank factor (candidate pool size)",
     min_value=1,
-    max_value=10,
+    max_value=5,
     value=2,
     step=1,
     help=(
@@ -28,7 +28,9 @@ show_debug = st.sidebar.checkbox("Show debug info (track IDs & raw scores)", val
 @st.cache_resource
 def get_engine():
     # 1. Load data (df + song_embeds)
-    df, feature_cols, targets, texts, song_embeds = load_data()
+    df, feature_cols, targets, texts, song_embeds = load_data(
+        filePath="data/spotifyData/spotify_all_songs_with_review_cols.csv"
+    )
 
     # 2. Recreate model architecture
     out_dim = len(feature_cols)
@@ -61,7 +63,7 @@ query = st.text_input(
     "Describe the vibe:",
     placeholder="e.g., upbeat summer roadtrip pop with female vocals",
 )
-k = st.slider("Number of songs (k)", min_value=5, max_value=50, value=10, step=1)
+k = st.slider("Number of songs (k)", min_value=1, max_value=50, value=10, step=1)
 go = st.button("Search")
 
 if go and query.strip():
