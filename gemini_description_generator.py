@@ -1,11 +1,16 @@
 import os
 import json
 import google.generativeai as genai
+from dotenv import load_dotenv
+load_dotenv()
 
 # Explicitly configure genai with the API key
-os.environ["GEMINI_API_KEY"] = "AIzaSyA0lk0ovNmex4idlIbHQoQ-EaVM-cnJwAw"
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-gemini_model = genai.GenerativeModel("gemini-2.5-flash")  # Re-instantiate if necessary
+gemini_api_key = os.getenv("GEMINI_API_KEY")
+if not gemini_api_key:
+    raise ValueError("GEMINI_API_KEY not found. Check your .env file.")
+
+genai.configure(api_key=gemini_api_key)
+gemini_model = genai.GenerativeModel("gemini-2.5-flash")
 
 def get_song_descriptions_batch(tracks):
     items_text = "\n".join(

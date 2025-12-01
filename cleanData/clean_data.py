@@ -1,9 +1,9 @@
 import pandas as pd
 
 # === 1. File paths ===
-songs_csv = "data/spotifyData/high_popularity_spotify_data.csv"
-low_pop_csv = "data/spotifyData/low_popularity_spotify_data.csv"
-reviews_csv = "data/spotifyData/reviews.csv"
+songs_csv = "../data/spotifyData/high_popularity_spotify_data.csv"
+low_pop_csv = "../data/spotifyData/low_popularity_spotify_data.csv"
+reviews_csv = "../data/spotifyData/reviews.csv"
 
 # Base path to save the new files
 output_path = "../data/spotifyData/"
@@ -57,6 +57,12 @@ if missing_cols:
     df_all_songs_with_reviews = df_all_songs_merged[available_cols]
 else:
     df_all_songs_with_reviews = df_all_songs_merged[keep_cols]
+
+NEW_COLUMN_NAME = "gemini_review"
+if NEW_COLUMN_NAME not in df_all_songs_with_reviews.columns:
+    df_all_songs_with_reviews[NEW_COLUMN_NAME] = pd.NA
+    df_all_songs_with_reviews[NEW_COLUMN_NAME] = df_all_songs_with_reviews[NEW_COLUMN_NAME].astype(object)
+keep_cols.append(NEW_COLUMN_NAME)
 
 # --- Dataset 2: Reviewed Songs Only (Filtered) ---
 # Filter the comprehensive dataset to keep only rows where 'text_review' is not NaN

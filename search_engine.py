@@ -1,7 +1,6 @@
 import torch
 import torch.nn.functional as F
 from gemini_description_generator import generate_descriptions_for_indices
-import pandas as pd
 import numpy as np
 
 
@@ -26,40 +25,22 @@ class SearchEngine:
             self.song_embeds = torch.tensor(self.song_embeds, dtype=torch.float32)
         self.song_embeds = self.song_embeds.to(self.device)
 
-    import pandas as pd
-    import numpy as np
 
     def update_dataframe(self, candidate_indices, descriptions):
 
-        if "small_text" not in self.df.columns:
-            print("Error: DataFrame must contain a 'small_text' column.")
+        if "gemini_review" not in self.df.columns:
+            print("Error: DataFrame must contain a 'gemini_review' column.")
             return
 
-        # Convert the list of indices (which are POSITIONS) to a NumPy array for .iloc
         candidate_pos_array = np.array(candidate_indices)
-
-        # Get the position of the 'small_text' column
-        small_text_col_pos = self.df.columns.get_loc("small_text")
-
-        # 1. RETRIEVE CURRENT VALUES using ILOC (accesses by integer position)
-        # This retrieves a Series containing the current small_text values for the candidate positions.
-        current_values = self.df.iloc[candidate_pos_array, small_text_col_pos]
-
-        # 2. Identify missing values
-        # Use .values to work with the boolean mask for indexing arrays
+        gemini_review_col_pos = self.df.columns.get_loc("gemini_review")
+        current_values = self.df.iloc[candidate_pos_array, gemini_review_col_pos]
         is_missing = current_values.isna().values | (current_values.astype(str).str.strip().str.len().values == 0)
 
-        # Get the POSITIONS that need updating
         positions_to_update = candidate_pos_array[is_missing]
-
-        # Get the corresponding descriptions that need to be assigned
         descriptions_to_assign = np.array(descriptions)[is_missing]
-
         print(f"Indices/Positions to Update: {positions_to_update.tolist()}")
-
-        # 3. ASSIGN NEW VALUES using ILOC
-        # This assigns the new descriptions to the correct integer positions in the DataFrame
-        self.df.iloc[positions_to_update, small_text_col_pos] = descriptions_to_assign
+        self.df.iloc[positions_to_update, gemini_review_col_pos] = descriptions_to_assign
 
     def _save_df(self, path: str = "data/spotifyData/spotify_all_songs_with_review_cols_updated.csv"):
         print(f"Attempting to save DF to: {path}")

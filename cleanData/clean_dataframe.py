@@ -60,6 +60,7 @@ def clean_dataframe(df):
             df["playlist_genre"].fillna("") + " " +
             df["playlist_subgenre"].fillna("") + " " +
             df["playlist_name"].fillna("") + ". " +
+            df["gemini_review"].fillna("") + "" +
             df["small_text"].fillna("") + " " +  # Add small_text
             df["review"].fillna("")  # Add review
     )

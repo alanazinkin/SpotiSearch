@@ -3,7 +3,6 @@ from models.text_to_features_model import TextToSpotifyFeatures, SongTextDataset
 import pandas as pd
 import torch
 from torch import nn
-from torch.nn import functional as F
 from cleanData.clean_dataframe import clean_dataframe
 from config import device, base_text_model
 
@@ -43,7 +42,7 @@ def train_model(model, loader, loss_fn, opt, n_epochs: int = 10, save_path: str 
 # Only run training if this file is executed directly:
 #   python -m models.train_model
 if __name__ == "__main__":
-    df, feature_cols, targets, texts, song_embeds = load_data()
+    df, feature_cols, targets, texts, song_embeds = load_data("../data/spotifyData/spotify_all_songs_with_review_cols_updated.csv")
 
     dataset = SongTextDataset(texts, targets)
     data_loader = DataLoader(dataset, batch_size=32, shuffle=True)
