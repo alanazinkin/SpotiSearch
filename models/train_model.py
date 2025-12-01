@@ -5,6 +5,7 @@ import torch
 from torch import nn
 from cleanData.clean_dataframe import clean_dataframe
 from config import device, base_text_model
+from sklearn.model_selection import train_test_split
 
 
 def load_data(filePath= "../data/spotifyData/spotify_all_songs_with_review_cols.csv"):
@@ -13,26 +14,49 @@ def load_data(filePath= "../data/spotifyData/spotify_all_songs_with_review_cols.
     feature_cols, targets, texts, song_embeds = clean_dataframe(df)
     return df, feature_cols, targets, texts, song_embeds
 
-
-def train_model(model, loader, loss_fn, opt, n_epochs: int = 10, save_path: str | None = None):
-    for epoch in range(n_epochs):
-        model.train()
-        total = 0.0
+def evaluate_model(model, loader, loss_fn):
+    """Calculates the loss on the provided dataset loader (typically the test set)."""
+    model.eval() # Set model to evaluation mode
+    total_loss = 0.0
+    with torch.no_grad(): # Disable gradient calculation
         for batch in loader:
             input_ids = batch["input_ids"].to(device)
             attn = batch["attention_mask"].to(device)
+            target = batch["target"].to(device)
 
             pred = model(input_ids, attn)
-            target = batch["target"].to(device)  # (batch, d)
+            loss = loss_fn(pred, target)
+            total_loss += loss.item() * input_ids.size(0)
+
+    # Return the average loss (Mean Squared Error)
+    return total_loss / len(loader.dataset)
+
+
+def train_model(model, train_loader, test_loader, loss_fn, opt, n_epochs: int = 10, save_path: str | None = None):
+    for epoch in range(n_epochs):
+        # --- Training Step ---
+        model.train()
+        train_total_loss = 0.0
+        for batch in train_loader:
+            input_ids = batch["input_ids"].to(device)
+            attn = batch["attention_mask"].to(device)
+            pred = model(input_ids, attn)
+            target = batch["target"].to(device)
 
             loss = loss_fn(pred, target)
 
             opt.zero_grad()
             loss.backward()
             opt.step()
-            total += loss.item() * input_ids.size(0)
+            train_total_loss += loss.item() * input_ids.size(0)
 
-        print(f"epoch {epoch + 1}: {total / len(loader.dataset):.4f}")
+        test_mse = evaluate_model(model, test_loader, loss_fn)
+
+        print(
+            f"Epoch {epoch + 1:2d} | "
+            f"Train MSE: {train_total_loss / len(train_loader.dataset):.4f} | "
+            f"Test MSE: {test_mse:.4f}"
+        )
 
     if save_path is not None:
         torch.save(model.state_dict(), save_path)
@@ -44,21 +68,35 @@ def train_model(model, loader, loss_fn, opt, n_epochs: int = 10, save_path: str 
 if __name__ == "__main__":
     df, feature_cols, targets, texts, song_embeds = load_data("../data/spotifyData/spotify_all_songs_with_review_cols_updated.csv")
 
-    dataset = SongTextDataset(texts, targets)
-    data_loader = DataLoader(dataset, batch_size=32, shuffle=True)
+    train_texts, test_texts, train_targets, test_targets = train_test_split(
+        texts,
+        targets,
+        test_size=0.2,
+        random_state=42
+    )
+
+    # 1. Create Training Dataset and DataLoader
+    train_dataset = SongTextDataset(train_texts, train_targets)
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+
+    test_dataset = SongTextDataset(test_texts, test_targets)
+    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
     spot_model = TextToSpotifyFeatures(base_text_model, out_dim=len(feature_cols)).to(device)
     optimizer = torch.optim.Adam(spot_model.parameters(), lr=1e-4)
     loss_function = nn.MSELoss()
 
-    print("Dataset and DataLoader re-instantiated with updated data.")
+    print(f"Total Samples: {len(df)}")
+    print(f"Training Samples: {len(train_dataset)}")
+    print(f"Test Samples: {len(test_dataset)}")
     print(f"Model initialized with output dimension: {len(feature_cols)}")
 
     train_model(
         spot_model,
-        data_loader,
+        train_loader,
+        test_loader,
         loss_function,
         optimizer,
-        n_epochs=10,
+        n_epochs=5,
         save_path="spotify_model_weights.pth",
     )

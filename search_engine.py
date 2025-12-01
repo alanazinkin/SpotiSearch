@@ -183,5 +183,4 @@ class SearchEngine:
 
             if len(results) >= k:
                 break
-
         return results

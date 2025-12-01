@@ -9,7 +9,7 @@ def clean_dataframe(df):
         "energy", "danceability", "valence", "tempo",
         "loudness", "acousticness", "liveness",
         "speechiness", "instrumentalness",
-        "time_signature", "track_popularity", "mode", "key"
+        "time_signature", "mode", "key"
     ]
 
     # --- NaN Handling for feature_cols ---
@@ -55,8 +55,8 @@ def clean_dataframe(df):
 
     # Prepare the comprehensive text column for model training from the de-duplicated DataFrame
     df["text"] = (
-            df["track_name"].fillna("") + " by " +
-            df["track_artist"].fillna("") + ". " +
+            # df["track_name"].fillna("") + " by " +
+            # df["track_artist"].fillna("") + ". " +
             df["playlist_genre"].fillna("") + " " +
             df["playlist_subgenre"].fillna("") + " " +
             df["playlist_name"].fillna("") + ". " +

@@ -1,3 +1,5 @@
+import time
+
 import streamlit as st
 import torch
 
@@ -69,11 +71,14 @@ go = st.button("Search")
 if go and query.strip():
     with st.spinner("Searching…"):
         try:
+            t1 = time.time()
             results = engine.search_songs(
                 query.strip(),
                 k=k,
                 rerank_factor=rerank_factor,
             )
+            t2 = time.time()
+            print(f'Time to Generate top {k} songs with re-rank factor of {rerank_factor}: {t2 - t1} seconds')
         except Exception as e:
             st.error(f"Something went wrong while searching: {e}")
             results = []
