@@ -1,8 +1,8 @@
 import time
 import streamlit as st
 import torch
-from compute_embeddings import load_embeds, save_new_embeddings, EMBEDDINGS_OUTPUT_PATH
-from search_engine import SearchEngine
+from engine.compute_embeddings import load_embeds, save_new_embeddings, EMBEDDINGS_OUTPUT_PATH
+from engine.search_engine import SearchEngine
 from config import tok, device, base_text_model, load_config, save_config
 from models.text_to_features_model import TextToSpotifyFeatures
 from models.train_model import load_dataframe

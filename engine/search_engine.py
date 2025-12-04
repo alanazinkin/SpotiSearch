@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-from gemini_description_generator import generate_descriptions_for_indices
+from engine.gemini_description_generator import generate_descriptions_for_indices
 import numpy as np
 
 class SearchEngine:

@@ -4,7 +4,7 @@ import pandas as pd
 import torch
 from torch import nn
 from cleanData.clean_dataframe import clean_dataframe
-from config import device, base_text_model
+from config.config import device, base_text_model
 from sklearn.model_selection import train_test_split
 
 

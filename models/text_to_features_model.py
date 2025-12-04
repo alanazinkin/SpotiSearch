@@ -1,6 +1,6 @@
 from torch import nn
 from torch.utils.data import Dataset
-from config import tok
+from config.config import tok
 
 class SongTextDataset(Dataset):
     def __init__(self, texts, targets):
