@@ -3,16 +3,15 @@ import torch.nn.functional as F
 from gemini_description_generator import generate_descriptions_for_indices
 import numpy as np
 
-
 class SearchEngine:
     def __init__(
-        self,
-        spot_model,          # TextToSpotifyFeatures (text -> spotify feature space)
-        df,                  # pandas DataFrame with track metadata
-        song_embeds,         # torch.Tensor of shape (N, d)
-        tok,                 # tokenizer from config
-        device,              # torch.device from config
-        text_embed_model,    # base_text_model for reranking (semantic text space)
+            self,
+            spot_model,  # TextToSpotifyFeatures (text -> spotify feature space)
+            df,  # pandas DataFrame with track metadata
+            song_embeds,  # torch.Tensor of shape (N, d) - pre-computed
+            tok,  # Tokenizer from config
+            device,  # torch.device from config
+            text_embed_model,  # base_text_model for reranking (semantic text space)
     ):
         self.spot_model = spot_model
         self.df = df
@@ -21,13 +20,9 @@ class SearchEngine:
         self.device = device
         self.text_embed_model = text_embed_model
 
-        if not isinstance(self.song_embeds, torch.Tensor):
-            self.song_embeds = torch.tensor(self.song_embeds, dtype=torch.float32)
-        self.song_embeds = self.song_embeds.to(self.device)
 
-
+    '''AI assisted in generating the update_dataframe method'''
     def update_dataframe(self, candidate_indices, descriptions):
-
         if "gemini_review" not in self.df.columns:
             print("Error: DataFrame must contain a 'gemini_review' column.")
             return
@@ -39,20 +34,19 @@ class SearchEngine:
 
         positions_to_update = candidate_pos_array[is_missing]
         descriptions_to_assign = np.array(descriptions)[is_missing]
-        print(f"Indices/Positions to Update: {positions_to_update.tolist()}")
-        self.df.iloc[positions_to_update, gemini_review_col_pos] = descriptions_to_assign
 
-    def _save_df(self, path: str = "data/spotifyData/spotify_all_songs_with_review_cols_updated.csv"):
+        if positions_to_update.size > 0:
+            print(f"In-memory DF update: Assigning {positions_to_update.size} new reviews.")
+            self.df.iloc[positions_to_update, gemini_review_col_pos] = descriptions_to_assign
+        else:
+            print("No new reviews generated for candidates.")
+
+    def _save_df(self, path: str = "data/spotify_all_songs_with_review_cols_updated.csv"):
         print(f"Attempting to save DF to: {path}")
         self.df.to_csv(path, index=False)
         print(f"Successfully wrote updated reviews to: {path}")
 
     def encode_query_to_feature_vec(self, query: str) -> torch.Tensor:
-        """
-        Encode user text query into the same feature space as song_embeds
-        using the trained spot_model.
-        Returns a 1D vector of shape (d,) on self.device.
-        """
         enc = self.tok(
             query,
             return_tensors="pt",
@@ -66,16 +60,10 @@ class SearchEngine:
 
         self.spot_model.eval()
         with torch.no_grad():
-            pred = self.spot_model(input_ids, attn)  # (1, d) if your model is defined that way
-
-        pred = pred.squeeze(0)  # (d,)
+            pred = self.spot_model(input_ids, attn).squeeze(0)
         return pred
 
     def embed_texts(self, texts, max_length=128, batch_size=32):
-        """
-        Embed free-form text using the base_text_model (semantic space).
-        Returns a tensor of shape (len(texts), d).
-        """
         model = self.text_embed_model
         tok = self.tok
 
@@ -83,7 +71,7 @@ class SearchEngine:
         model.eval()
         with torch.no_grad():
             for i in range(0, len(texts), batch_size):
-                chunk = texts[i : i + batch_size]
+                chunk = texts[i: i + batch_size]
                 enc = tok(
                     chunk,
                     padding=True,
@@ -98,51 +86,38 @@ class SearchEngine:
                 x = F.normalize(x, dim=-1)
                 all_embs.append(x.cpu())
 
-        return torch.cat(all_embs, dim=0)  # (len(texts), d)
-
-    # ---------- Main search ----------
+        return torch.cat(all_embs, dim=0)
 
     def search_songs(self, query: str, k: int = 10, rerank_factor: int = 2):
-        """
-        Returns a list of dicts:
-        {
-            "track_id": ...,
-            "name": ...,
-            "artist": ...,
-            "score": ...,
-        }
-        """
         results = []
 
-        # ---------- Stage 1: base retrieval in Spotify-feature space ----------
-
-        q_vec = self.encode_query_to_feature_vec(query)          # (d,)
-        q_vec = F.normalize(q_vec, dim=-1)                       # (d,)
-        sims_spotify = self.song_embeds @ q_vec                  # (N,)
+        # Stage 1: base retrieval in Spotify-feature space
+        q_vec = self.encode_query_to_feature_vec(query)
+        q_vec = F.normalize(q_vec, dim=-1)
+        sims_spotify = self.song_embeds @ q_vec
 
         n_candidates = min(rerank_factor * k, self.song_embeds.shape[0])
         top_vals, top_idx = torch.topk(sims_spotify, n_candidates)
 
-        # Path A: Skip Rerank (k >= 30)
+        # Path A: Skip Rerank
         if k >= 30:
             return self.append_top_songs(k, results, top_idx, top_vals, set())
 
-        # ---------- Stage 2: Rerank with Gemini descriptions + base_text_model ----------
+        # Stage 2: Rerank with Gemini descriptions + base_text_model
 
         candidate_indices = top_idx.tolist()
         descriptions = generate_descriptions_for_indices(candidate_indices, self.df, 10)
         print(candidate_indices)
 
-        # Fill in missing small_text descriptions in df  with the new LLM descriptions
         self.update_dataframe(candidate_indices, descriptions)
         self._save_df()
 
         # 2. Embed query + descriptions with base_text_model
-        query_desc_emb = self.embed_texts([query])[0]  # (d,)
-        desc_embs = self.embed_texts(descriptions)     # (n_candidates, d)
+        query_desc_emb = self.embed_texts([query])[0]
+        desc_embs = self.embed_texts(descriptions)
 
         # 3. Cosine sim in text space
-        sims_text = desc_embs @ query_desc_emb         # (n_candidates,)
+        sims_text = desc_embs @ query_desc_emb
         sorted_scores, sorted_idx_local = torch.sort(sims_text, descending=True)
         reranked_global_indices = [candidate_indices[i] for i in sorted_idx_local.tolist()]
 
@@ -156,14 +131,7 @@ class SearchEngine:
 
         return results
 
-    def append_top_songs(self, k: int, results: list,indices, scores, seen_ids: set) -> list:
-        """
-        Generic helper to append top songs to `results` given indices + scores.
-
-        - If `seen_ids` is provided, deduplicates by track_id.
-        - Stops when `len(results) >= k`.
-        - Returns the (possibly) extended `results` list.
-        """
+    def append_top_songs(self, k: int, results: list, indices, scores, seen_ids: set) -> list:
         for score, idx in zip(scores.tolist(), indices.tolist()):
             row = self.df.iloc[idx]
             track_id = row.get("track_id", idx)

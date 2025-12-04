@@ -8,11 +8,14 @@ from config import device, base_text_model
 from sklearn.model_selection import train_test_split
 
 
-def load_data(filePath= "../data/spotifyData/spotify_all_songs_with_review_cols.csv"):
+def load_dataframe(filePath= "../data/spotifyData/spotify_all_songs_with_review_cols.csv"):
     df = pd.read_csv(filePath)
     print(df.head())
-    feature_cols, targets, texts, song_embeds = clean_dataframe(df)
-    return df, feature_cols, targets, texts, song_embeds
+    return df
+
+def update_df(dataframe: pd.DataFrame):
+    feature_cols, targets, texts, song_text_to_embed = clean_dataframe(dataframe)
+    return feature_cols, targets, texts, song_text_to_embed
 
 def evaluate_model(model, loader, loss_fn):
     """Calculates the loss on the provided dataset loader (typically the test set)."""
@@ -63,10 +66,9 @@ def train_model(model, train_loader, test_loader, loss_fn, opt, n_epochs: int = 
         print(f"Model parameters saved to {save_path}")
 
 
-# Only run training if this file is executed directly:
-#   python -m models.train_model
 if __name__ == "__main__":
-    df, feature_cols, targets, texts, song_embeds = load_data("../data/spotifyData/spotify_all_songs_with_review_cols_updated.csv")
+    df = load_dataframe("../data/spotify_all_songs_with_review_cols_updated.csv")
+    feature_cols, targets, texts, song_text_to_embed = update_df(df)
 
     train_texts, test_texts, train_targets, test_targets = train_test_split(
         texts,

@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 
 def clean_dataframe(df):
-    # Define the numerical Spotify features
+    # Numerical Spotify features
     feature_cols = [
         "energy", "danceability", "valence", "tempo",
         "loudness", "acousticness", "liveness",
@@ -13,7 +13,6 @@ def clean_dataframe(df):
     ]
 
     # --- NaN Handling for feature_cols ---
-    # Check for NaNs and impute with mean if any are found
     if df[feature_cols].isnull().any().any():
         print("NaN values found in feature_cols. Imputing with mean...")
         for col in feature_cols:
@@ -55,14 +54,14 @@ def clean_dataframe(df):
 
     # Prepare the comprehensive text column for model training from the de-duplicated DataFrame
     df["text"] = (
-            # df["track_name"].fillna("") + " by " +
-            # df["track_artist"].fillna("") + ". " +
+            df["track_name"].fillna("") + " by " +
+            df["track_artist"].fillna("") + ". " +
             df["playlist_genre"].fillna("") + " " +
             df["playlist_subgenre"].fillna("") + " " +
             df["playlist_name"].fillna("") + ". " +
             df["gemini_review"].fillna("") + "" +
-            df["small_text"].fillna("") + " " +  # Add small_text
-            df["review"].fillna("")  # Add review
+            df["small_text"].fillna("") + " "
+            # df["review"].fillna("")
     )
 
     # Clean up extra spaces that might result from concatenating with empty strings
@@ -80,5 +79,3 @@ def clean_dataframe(df):
         print(f"  - {texts[i][:150]}...")
 
     return feature_cols, targets, texts, song_embeds
-
-
