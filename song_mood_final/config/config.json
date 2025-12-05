@@ -1,0 +1,5 @@
+{
+    "run_count": 8,
+    "max_runs_before_recompute": 10,
+    "embeddings_file_path": "song_embeddings.pkl"
+}

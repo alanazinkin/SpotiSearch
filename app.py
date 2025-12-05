@@ -1,11 +1,11 @@
 import time
 import streamlit as st
 import torch
-from engine.compute_embeddings import load_embeds, save_new_embeddings, EMBEDDINGS_OUTPUT_PATH
-from engine.search_engine import SearchEngine
-from config.config import tok, device, base_text_model, load_config, save_config
-from models.text_to_features_model import TextToSpotifyFeatures
-from models.train_model import load_dataframe
+from song_mood_final.engine.compute_embeddings import load_embeds, save_new_embeddings, EMBEDDINGS_OUTPUT_PATH
+from song_mood_final.engine.search_engine import SearchEngine
+from song_mood_final.config.config import tok, device, base_text_model, load_config, save_config
+from song_mood_final.models.text_to_features_model import TextToSpotifyFeatures
+from song_mood_final.models.train_model import load_dataframe
 
 st.set_page_config(page_title="Spotify Vibe Search", page_icon="🎧", layout="centered")
 
@@ -27,7 +27,7 @@ show_debug = st.sidebar.checkbox("Show debug info (track IDs & raw scores)", val
 @st.cache_resource
 def get_engine(recompute_flag=False):
     # 1. Load data (df + song_embeds)
-    df = load_dataframe(filePath="data/spotify_all_songs_with_review_cols_updated.csv")
+    df = load_dataframe(filePath="song_mood_final/data/spotify_all_songs_with_review_cols_updated.csv")
     # feature_cols, targets, texts, song_text_to_embeds = update_df(df)
 
     # 2. Recreate model architecture
@@ -41,7 +41,7 @@ def get_engine(recompute_flag=False):
     spot_model = TextToSpotifyFeatures(base_text_model, out_dim=out_dim).to(device)
 
     # 3. Load trained weights
-    state = torch.load("models/spotify_model_weights.pth", map_location=device)
+    state = torch.load("song_mood_final/models/spotify_model_weights.pth", map_location=device)
     spot_model.load_state_dict(state)
     spot_model.eval()
 
@@ -50,7 +50,7 @@ def get_engine(recompute_flag=False):
             save_new_embeddings(spot_model, df, tok, device, EMBEDDINGS_OUTPUT_PATH)
 
     # 4. Build SearchEngine
-    song_embeds_tensor = load_embeds('data/song_embeddings.pkl', device)
+    song_embeds_tensor = load_embeds('song_mood_final/data/song_embeddings.pkl', device)
 
     if song_embeds_tensor is None:
         raise FileNotFoundError(f"Required embeddings file missing at {'data/song_embeddings.pkl'}.")
