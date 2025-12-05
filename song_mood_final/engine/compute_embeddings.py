@@ -9,12 +9,13 @@ from song_mood_final.config.config import base_text_model, device, tok
 from song_mood_final.engine.data_utils import generate_text_for_embedding
 from song_mood_final.models.text_to_features_model import TextToSpotifyFeatures
 
-DF_PATH = "song_mood_final/data/spotify_all_songs_with_review_cols_updated.csv"
-EMBEDDINGS_OUTPUT_PATH = "song_mood_final/data/song_embeddings.pkl"
 BATCH_SIZE = 32
 
-
 def load_embeds(path: str, device: torch.device) -> torch.Tensor | None:
+    """
+    Loads normalized feature vectors (a dictionary of vectors) from a .pkl file,
+    sorts them by index, and converts them to a PyTorch tensor.
+    """
     try:
         with open(path, 'rb') as f:
             song_embeds_dict = pickle.load(f)
@@ -37,7 +38,6 @@ def load_embeds(path: str, device: torch.device) -> torch.Tensor | None:
     except Exception as e:
         print(f"Error loading or processing embeddings: {e}")
         return None
-
 
 def compute_all_embeddings(spot_model, df, tok, device) -> dict:
     # Get combined text strings
@@ -85,6 +85,9 @@ def save_new_embeddings(spot_model, df, tok, device, path):
     print("Embeddings saved to disk.")
 
 def main():
+    DF_PATH = "song_mood_final/data/spotify_all_songs_with_review_cols_updated.csv"
+    EMBEDDINGS_OUTPUT_PATH = "song_mood_final/data/song_embeddings.pkl"
+
     df = pd.read_csv(DF_PATH)
 
     feature_cols = [

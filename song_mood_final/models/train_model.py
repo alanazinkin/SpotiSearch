@@ -4,18 +4,30 @@ import pandas as pd
 import torch
 from torch import nn
 from song_mood_final.cleanData.clean_dataframe import clean_dataframe
-from song_mood_final.config.config import device, base_text_model
+from song_mood_final.config.config import device, base_text_model, load_config, save_config
 from sklearn.model_selection import train_test_split
 
 
-def load_dataframe(filePath= "../data/spotifyData/spotify_all_songs_with_review_cols.csv"):
-    df = pd.read_csv(filePath)
+def load_dataframe(file_path):
+    df = pd.read_csv(file_path)
     print(df.head())
     return df
 
 def update_df(dataframe: pd.DataFrame):
-    feature_cols, targets, texts, song_text_to_embed = clean_dataframe(dataframe)
-    return feature_cols, targets, texts, song_text_to_embed
+    return clean_dataframe(dataframe)
+
+def reset_run_counter():
+    try:
+        config = load_config()
+        if config.get('run_count', 0) != 0:
+            config['run_count'] = 0
+            save_config(config)
+            print("Successfully RESET run_count to 0 in config.json.")
+        else:
+            print("Run counter was already 0. No reset necessary.")
+
+    except Exception as e:
+        print(f"Warning: Could not reset run counter. Error: {e}")
 
 def evaluate_model(model, loader, loss_fn):
     """Calculates the loss on the provided dataset loader (typically the test set)."""
@@ -64,6 +76,7 @@ def train_model(model, train_loader, test_loader, loss_fn, opt, n_epochs: int = 
     if save_path is not None:
         torch.save(model.state_dict(), save_path)
         print(f"Model parameters saved to {save_path}")
+        reset_run_counter()
 
 
 if __name__ == "__main__":

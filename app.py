@@ -2,7 +2,7 @@ import time
 import streamlit as st
 import torch
 
-from song_mood_final.engine.compute_embeddings import save_new_embeddings, EMBEDDINGS_OUTPUT_PATH, load_embeds
+from song_mood_final.engine.compute_embeddings import load_embeds
 from song_mood_final.engine.search_engine import SearchEngine
 from song_mood_final.config.config import tok, device, base_text_model, load_config, save_config
 from song_mood_final.models.text_to_features_model import TextToSpotifyFeatures
@@ -26,10 +26,11 @@ show_debug = st.sidebar.checkbox("Show debug info (track IDs & raw scores)", val
 
 
 @st.cache_resource
-def get_engine(recompute_flag=False):
-    # 1. Load data (df + song_embeds)
-    df = load_dataframe(filePath="song_mood_final/data/spotify_all_songs_with_review_cols_updated.csv")
-    # feature_cols, targets, texts, song_text_to_embeds = update_df(df)
+def get_engine():
+    # 1. Load data (df)
+    config = load_config()
+    filePath = config.get('songs_file_path')
+    df = load_dataframe(filePath)
 
     # 2. Recreate model architecture
     feature_cols = [
@@ -46,15 +47,12 @@ def get_engine(recompute_flag=False):
     spot_model.load_state_dict(state)
     spot_model.eval()
 
-    if recompute_flag:
-        with st.spinner("Embedding threshold reached. Recomputing and saving embeddings..."):
-            save_new_embeddings(spot_model, df, tok, device, EMBEDDINGS_OUTPUT_PATH)
-
     # 4. Build SearchEngine
-    song_embeds_tensor = load_embeds('song_mood_final/data/song_embeddings.pkl', device)
+    embeddings_path = config.get('embeddings_file_path')
+    song_embeds_tensor = load_embeds(embeddings_path, device)
 
     if song_embeds_tensor is None:
-        raise FileNotFoundError(f"Required embeddings file missing at {'song_mood_final/data/song_embeddings.pkl'}.")
+        raise FileNotFoundError(f"Required embeddings file missing at {embeddings_path}.")
 
     search_engine = SearchEngine(
         spot_model=spot_model,
@@ -63,38 +61,17 @@ def get_engine(recompute_flag=False):
         tok=tok,
         device=device,
         text_embed_model=base_text_model,
+        path=filePath
     )
     return search_engine
 
-
-def initialize_app_engine():
-    config = load_config()
-    current_run_count = config.get('run_count', 0)
-    max_runs = config.get('max_runs_before_recompute', 10)
-
-    RECOMPUTE_EMBEDS_NEEDED = (current_run_count >= max_runs) or (current_run_count == 0)
-
-    recompute_flag = RECOMPUTE_EMBEDS_NEEDED
-
-    if recompute_flag:
-        st.header(f"Embedding Update Cycle Triggered! ⏳ (Count: {current_run_count})")
-        engine_instance = get_engine(recompute_flag=True)
-        config['run_count'] = 1
-        save_config(config)
-        st.success(f"New embeddings loaded. Next update in {max_runs} runs.")
-
-    else:
-        engine_instance = get_engine(recompute_flag=False)
-
-    return engine_instance
-
-engine = initialize_app_engine()
+engine = get_engine()
 
 
 def increment_run_count():
     config = load_config()
     current_run_count = config.get('run_count', 0)
-    max_runs = config.get('max_runs_before_recompute', 10)
+    max_runs = config.get('max_runs_before_recompute', 100)
 
     new_run_count = current_run_count + 1
 
@@ -102,6 +79,9 @@ def increment_run_count():
     save_config(config)
     display_run = new_run_count if new_run_count <= max_runs else max_runs
     st.sidebar.markdown(f"**Run Count:** {display_run} / {max_runs}")
+    if new_run_count >= max_runs:
+        st.sidebar.warning(
+            f"**{max_runs} RUNS REACHED!** \nIt is recommended to re-train the model to capture new trends.")
 
 
 st.title("🎧 Spotify Vibe Search")

@@ -1,4 +1,6 @@
 {
-    "run_count": 2,
-    "max_runs_before_recompute": 10
+    "run_count": 27,
+    "max_runs_before_recompute": 100,
+    "songs_file_path": "song_mood_final/data/spotify_all_songs_with_review_cols_updated.csv",
+    "embeddings_file_path": "song_mood_final/data/song_embeddings.pkl"
 }

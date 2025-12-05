@@ -11,7 +11,8 @@ class SearchEngine:
             song_embeds,  # torch.Tensor of shape (N, d) - pre-computed
             tok,  # Tokenizer from config
             device,  # torch.device from config
-            text_embed_model,  # base_text_model for reranking (semantic text space)
+            text_embed_model, # base_text_model for reranking (semantic text space)
+            path,
     ):
         self.spot_model = spot_model
         self.df = df
@@ -19,10 +20,11 @@ class SearchEngine:
         self.tok = tok
         self.device = device
         self.text_embed_model = text_embed_model
+        self.path = path
 
 
     '''AI assisted in generating the update_dataframe method'''
-    def update_dataframe(self, candidate_indices, descriptions):
+    def update_dataframe(self, candidate_indices, descriptions, path):
         if "gemini_review" not in self.df.columns:
             print("Error: DataFrame must contain a 'gemini_review' column.")
             return
@@ -40,11 +42,6 @@ class SearchEngine:
             self.df.iloc[positions_to_update, gemini_review_col_pos] = descriptions_to_assign
         else:
             print("No new reviews generated for candidates.")
-
-    def _save_df(self, path: str = "song_mood_final/data/spotify_all_songs_with_review_cols_updated.csv"):
-        print(f"Attempting to save DF to: {path}")
-        self.df.to_csv(path, index=False)
-        print(f"Successfully wrote updated reviews to: {path}")
 
     def encode_query_to_feature_vec(self, query: str) -> torch.Tensor:
         enc = self.tok(
@@ -109,8 +106,8 @@ class SearchEngine:
         descriptions = generate_descriptions_for_indices(candidate_indices, self.df, 10)
         print(candidate_indices)
 
-        self.update_dataframe(candidate_indices, descriptions)
-        self._save_df()
+        self.update_dataframe(candidate_indices, descriptions, self.path)
+        save_df(self.df, self.path)
 
         # 2. Embed query + descriptions with base_text_model
         query_desc_emb = self.embed_texts([query])[0]
@@ -152,3 +149,8 @@ class SearchEngine:
             if len(results) >= k:
                 break
         return results
+
+def save_df(df, path):
+    print(f"Attempting to save DF to: {path}")
+    df.to_csv(path, index=False)
+    print(f"Successfully wrote updated reviews to: {path}")

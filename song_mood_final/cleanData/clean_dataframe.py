@@ -1,16 +1,64 @@
+import numpy as np
+import pandas as pd
 from sklearn.preprocessing import StandardScaler
 import torch
 import torch.nn.functional as F
 
+# Standard Spotify Features
+REQUIRED_FEATURE_MAP = {
+    "energy": ["energy"],
+    "danceability": ["danceability"],
+    "valence": ["valence"],
+    "tempo": ["tempo"],
+    "loudness": ["loudness"],
+    "acousticness": ["acousticness"],
+    "liveness": ["liveness"],
+    "speechiness": ["speechiness"],
+    "instrumentalness": ["instrumentalness"],
+    "time_signature": ["time_signature", "time signature"],  # Handle space
+    "mode": ["mode"],
+    "key": ["key"]
+}
 
-def clean_dataframe(df):
-    # Numerical Spotify features
-    feature_cols = [
-        "energy", "danceability", "valence", "tempo",
-        "loudness", "acousticness", "liveness",
-        "speechiness", "instrumentalness",
-        "time_signature", "mode", "key"
-    ]
+REQUIRED_TEXT_MAP = {
+    "track_id": ["track_id", "track uri"],
+    "track_name": ["track_name", "track name", "track"],
+    "track_artist": ["track_artist", "artist", "artist name(s)"],
+    "playlist_genre": ["playlist_genre", "genres"],
+    "playlist_subgenre": ["playlist_subgenre", "subgenre"],
+    "playlist_name": ["playlist_name"],
+    "gemini_review": ["gemini_review"],
+    "small_text": ["small_text"],
+}
+
+
+def clean_dataframe(df: pd.DataFrame) -> tuple:
+    # 1. Create a lowercase map of the uploaded DataFrame's columns
+    df_cols_map = {col.lower(): col for col in df.columns}
+    renaming_dict = {}
+    all_required_maps = {**REQUIRED_FEATURE_MAP, **REQUIRED_TEXT_MAP}
+
+    for standard_name, possible_sources in all_required_maps.items():
+        found = False
+        for source_name in possible_sources:
+            if source_name.lower() in df_cols_map:
+                original_col = df_cols_map[source_name.lower()]
+                if original_col != standard_name:
+                    renaming_dict[original_col] = standard_name
+                found = True
+                break
+
+        if not found and standard_name not in df.columns:
+            df[standard_name] = np.nan
+            print(f"Added missing column: {standard_name}")
+
+    if renaming_dict:
+        df.rename(columns=renaming_dict, inplace=True)
+        print(f"Columns renamed/standardized: {list(renaming_dict.items())}")
+    else:
+        print("No columns required renaming.")
+
+    feature_cols = list(REQUIRED_FEATURE_MAP.keys())
 
     # --- NaN Handling for feature_cols ---
     if df[feature_cols].isnull().any().any():
@@ -78,4 +126,4 @@ def clean_dataframe(df):
     for i in range(5):
         print(f"  - {texts[i][:150]}...")
 
-    return feature_cols, targets, texts, song_embeds
+    return df, feature_cols, targets, texts, song_embeds
