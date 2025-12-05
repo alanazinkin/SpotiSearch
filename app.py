@@ -3,7 +3,7 @@ import streamlit as st
 import torch
 from engine.compute_embeddings import load_embeds, save_new_embeddings, EMBEDDINGS_OUTPUT_PATH
 from engine.search_engine import SearchEngine
-from config import tok, device, base_text_model, load_config, save_config
+from config.config import tok, device, base_text_model, load_config, save_config
 from models.text_to_features_model import TextToSpotifyFeatures
 from models.train_model import load_dataframe
 
@@ -48,7 +48,6 @@ def get_engine(recompute_flag=False):
     if recompute_flag:
         with st.spinner("Embedding threshold reached. Recomputing and saving embeddings..."):
             save_new_embeddings(spot_model, df, tok, device, EMBEDDINGS_OUTPUT_PATH)
-        st.success("New embeddings saved and will be loaded.")
 
     # 4. Build SearchEngine
     song_embeds_tensor = load_embeds('data/song_embeddings.pkl', device)

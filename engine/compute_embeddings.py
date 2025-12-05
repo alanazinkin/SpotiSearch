@@ -5,11 +5,11 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from config.config import tok, device, base_text_model # Assuming you have these set up
-from data_utils import generate_text_for_embedding
+from engine.data_utils import generate_text_for_embedding
 from models.text_to_features_model import TextToSpotifyFeatures
 
-DF_PATH = "../data/spotify_all_songs_with_review_cols_updated.csv"
-EMBEDDINGS_OUTPUT_PATH = "../data/song_embeddings.pkl"
+DF_PATH = "data/spotify_all_songs_with_review_cols_updated.csv"
+EMBEDDINGS_OUTPUT_PATH = "data/song_embeddings.pkl"
 BATCH_SIZE = 32
 
 
