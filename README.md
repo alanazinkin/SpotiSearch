@@ -8,9 +8,18 @@ We leverage 2 separate models, songs are retrieved by predicting the Spotify fea
 **Quick Start:**
 - Clone GitHub Repository 
 - To run album search model, 
-- To upload your personal music for retrieval, export your Spotify data using Exportify 
+
 - To run song search model, create .env file with GEMINI_API_KEY=’your_api_key’
 - Run the command 'streamlit run app.py' in the terminal to launch song search app
+
+**To Use Your Own Music Dataset**
+- Export your Spotify data using Exportify 
+For Song Search:
+- Add csv file
+
+For Album Search:
+
+
 
 **Video Links:**
 
