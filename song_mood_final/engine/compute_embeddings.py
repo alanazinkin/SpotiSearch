@@ -4,12 +4,13 @@ import torch
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-from song_mood_final.config.config import tok, device, base_text_model
+
+from song_mood_final.config.config import base_text_model, device, tok
 from song_mood_final.engine.data_utils import generate_text_for_embedding
 from song_mood_final.models.text_to_features_model import TextToSpotifyFeatures
 
-DF_PATH = "data/spotify_all_songs_with_review_cols_updated.csv"
-EMBEDDINGS_OUTPUT_PATH = "data/song_embeddings.pkl"
+DF_PATH = "song_mood_final/data/spotify_all_songs_with_review_cols_updated.csv"
+EMBEDDINGS_OUTPUT_PATH = "song_mood_final/data/song_embeddings.pkl"
 BATCH_SIZE = 32
 
 

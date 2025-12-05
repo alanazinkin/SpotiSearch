@@ -41,7 +41,7 @@ class SearchEngine:
         else:
             print("No new reviews generated for candidates.")
 
-    def _save_df(self, path: str = "data/spotify_all_songs_with_review_cols_updated.csv"):
+    def _save_df(self, path: str = "song_mood_final/data/spotify_all_songs_with_review_cols_updated.csv"):
         print(f"Attempting to save DF to: {path}")
         self.df.to_csv(path, index=False)
         print(f"Successfully wrote updated reviews to: {path}")

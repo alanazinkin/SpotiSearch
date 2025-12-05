@@ -1,7 +1,8 @@
 import time
 import streamlit as st
 import torch
-from song_mood_final.engine.compute_embeddings import load_embeds, save_new_embeddings, EMBEDDINGS_OUTPUT_PATH
+
+from song_mood_final.engine.compute_embeddings import save_new_embeddings, EMBEDDINGS_OUTPUT_PATH, load_embeds
 from song_mood_final.engine.search_engine import SearchEngine
 from song_mood_final.config.config import tok, device, base_text_model, load_config, save_config
 from song_mood_final.models.text_to_features_model import TextToSpotifyFeatures
@@ -53,7 +54,7 @@ def get_engine(recompute_flag=False):
     song_embeds_tensor = load_embeds('song_mood_final/data/song_embeddings.pkl', device)
 
     if song_embeds_tensor is None:
-        raise FileNotFoundError(f"Required embeddings file missing at {'data/song_embeddings.pkl'}.")
+        raise FileNotFoundError(f"Required embeddings file missing at {'song_mood_final/data/song_embeddings.pkl'}.")
 
     search_engine = SearchEngine(
         spot_model=spot_model,
