@@ -1,25 +1,23 @@
 import time
 import os
 import streamlit as st
+from album_mood_final.backend.query_data import AlbumVibeSearcher
+import torch
+from song_mood_final.engine.compute_embeddings import load_embeds
+from song_mood_final.engine.search_engine import SearchEngine
+from song_mood_final.config.config import tok, device, base_text_model, load_config, save_config
+from song_mood_final.models.text_to_features_model import TextToSpotifyFeatures
+from song_mood_final.models.train_model import load_dataframe
 
-# Attempt to import album search backend (may need correct path)
-try:
-    from album_mood_final.backend.query_data import query_vibe_console
-    _HAS_ALBUM_BACKEND = True
-except Exception:
-    _HAS_ALBUM_BACKEND = False
 
-# Attempt to import spotify/song search engine pieces
-try:
-    import torch
-    from song_mood_final.engine.compute_embeddings import load_embeds
-    from song_mood_final.engine.search_engine import SearchEngine
-    from song_mood_final.config.config import tok, device, base_text_model, load_config, save_config
-    from song_mood_final.models.text_to_features_model import TextToSpotifyFeatures
-    from song_mood_final.models.train_model import load_dataframe
-    _HAS_SONG_BACKEND = True
-except Exception:
-    _HAS_SONG_BACKEND = False
+@st.cache_resource
+def get_album_searcher():
+    return AlbumVibeSearcher(
+        model_id="mmarkusmalone/album_moods_embedding_stage2",
+        embeddings_path="album_mood_final/backend/building_embedding_data/embeddings.npy",
+        metadata_path="album_mood_final/backend/building_embedding_data/embeddings_metadata.csv",
+        use_verbose=False
+    )
 
 # ========== PAGE CONFIG ==========
 st.set_page_config(
@@ -110,12 +108,6 @@ tab_album, tab_spotify = st.tabs(["Album Vibe Search", "Spotify Vibe Search"])
 # ---------------- ALBUM TAB ----------------
 with tab_album:
     st.subheader("Album Vibe Search")
-    if not _HAS_ALBUM_BACKEND:
-        st.warning(
-            "Album backend couldn't be imported. Make sure `backend.query_data.query_vibe_console` is available "
-            "in your project path."
-        )
-
     q_album = st.text_input("Enter vibe text (albums):", placeholder="e.g., dreamy nostalgic indie folk", key="album_query")
     top_k = st.slider("Results to return", 5, 20, 5, key="album_topk")
 
@@ -130,15 +122,14 @@ with tab_album:
         if not q_text:
             st.warning("Please enter a query (describe the vibe you want).")
         else:
-            if not _HAS_ALBUM_BACKEND:
-                st.error("Album search backend not available. Cannot run search.")
-            else:
-                with st.spinner("Searching for matching albums..."):
-                    try:
-                        results = query_vibe_console(q_text, top_k=top_k)
-                    except Exception as e:
-                        st.error(f"Error running album search: {e}")
-                        results = []
+            with st.spinner("Searching for matching albums..."):
+                try:
+                    searcher = get_album_searcher()
+                    if btn_album_search:
+                        results = searcher.query(q_text, top_k=top_k)
+                except Exception as e:
+                    st.error(f"Error running album search: {e}")
+                    results = []
 
                 st.markdown("---")
                 st.subheader(f"Top {len(results)} Results for: «{q_text}»")
@@ -185,9 +176,6 @@ with tab_spotify:
 
     @st.cache_resource
     def get_engine():
-        if not _HAS_SONG_BACKEND:
-            return None
-
         # 1. Load data (df)
         config = load_config()
         filePath = config.get('songs_file_path')
