@@ -96,11 +96,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Short explanatory note requested:
-st.markdown(
-    "<p style='text-align:center; margin-bottom:12px;'><em>Note:</em> the Album search uses a fine-tuned embedding model, while the Spotify/song search uses an MLP (Text→Spotify features) front-end that reranks candidates using learned Spotify features + embeddings.</p>",
-    unsafe_allow_html=True
-)
 
 # ========== TABS FOR TWO SEARCH FLOWS ==========
 tab_album, tab_spotify = st.tabs(["Album Vibe Search", "Spotify Vibe Search"])
