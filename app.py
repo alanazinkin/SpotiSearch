@@ -154,10 +154,6 @@ with tab_album:
 # ---------------- SPOTIFY TAB ----------------
 with tab_spotify:
     st.subheader("Spotify Vibe Search")
-    if not _HAS_SONG_BACKEND:
-        st.warning(
-            "Spotify/song backend couldn't be fully imported. Verify the `song_mood_final` package, model weights, and config are present."
-        )
 
     # Sidebar controls (kept in sidebar to match original)
     st.sidebar.header("Search Settings")
