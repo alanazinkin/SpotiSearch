@@ -291,18 +291,27 @@ with tab_spotify:
                 else:
                     st.subheader(f"Top {len(results)} results")
                     for i, song in enumerate(results, start=1):
-                        # st.container doesn't have border param in stable streamlit; keep simple
-                        cols = st.columns([1, 5])
+                        title = song.get("name", "Unknown title")
+                        artist = song.get("artist", "Unknown artist")
+                        score = song.get("score", 0.0)
+                        track_id = song.get("track_id", "N/A")
 
-                        with cols[0]:
-                            st.markdown(f"**#{i}**")
-                            if show_debug:
-                                st.caption(f"ID: `{song.get('track_id', 'N/A')}`\nScore: {song.get('score', 0.0):.3f}")
+                        # Construct the metadata line (including debug info if requested)
+                        meta_parts = [
+                            f"score={score:.4f}"
+                        ]
+                        if show_debug:
+                            meta_parts.append(f"ID: {track_id}")
 
-                        with cols[1]:
-                            st.markdown(f"**{song.get('name', 'Unknown title')}**")
-                            st.markdown(song.get("artist", "Unknown artist"))
-                            if show_debug and "score" in song:
-                                st.caption(f"Relevance: {song['score']:.3f}")
+                        meta_line = " • ".join(meta_parts)
 
-# End of combined app
+                        st.markdown(
+                            f"""
+                                    <div class='result-card'>
+                                        <div class='result-title'>{i}. {title}</div>
+                                        <div class='result-meta'>{artist}</div>
+                                        <div class='result-review'>{meta_line}</div>
+                                    </div>
+                                    """,
+                            unsafe_allow_html=True
+                        )
