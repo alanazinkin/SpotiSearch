@@ -150,13 +150,11 @@ with tab_album:
                     genre = r.get("genre", "") or ""
                     year = r.get("year_released", "") or ""
                     score = r.get("score", 0.0) or 0.0
-                    review = r.get("review", "") or ""
                     st.markdown(
                         f"""
                         <div class='result-card'>
                             <div class='result-title'>{r.get("rank","")}. {artist} — {title}</div>
                             <div class='result-meta'>{genre} • {year} • score={score:.4f}</div>
-                            <div class='result-review'>{review}...</div>
                         </div>
                         """,
                         unsafe_allow_html=True
