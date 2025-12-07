@@ -4,8 +4,8 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 import joblib
 
-from song_mood_final.cleanData.clean_dataframe import clean_dataframe
-from song_mood_final.engine.search_engine import save_df
+from src.song_src.cleanData.clean_dataframe import clean_dataframe
+from src.song_src.engine.search_engine import save_df
 
 SPOTIFY_FEATURES = [
     'danceability', 'energy', 'key', 'loudness', 'mode',
@@ -71,6 +71,6 @@ def create_song_feature_vectors(
 
 if __name__ == "__main__":
     create_song_feature_vectors(
-        input_csv_path="../data/My_Liked_Songs.csv",
-        output_pkl_path="../data/my_song_features_normalized.pkl"
+        input_csv_path="../../../data/song_data/My_Liked_Songs.csv",
+        output_pkl_path="../../../data/song_data/my_song_features_normalized.pkl"
     )

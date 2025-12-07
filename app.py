@@ -1,21 +1,21 @@
 import time
 import os
 import streamlit as st
-from album_mood_final.backend.query_data import AlbumVibeSearcher
+from src.album_src.backend.query_data import AlbumVibeSearcher
 import torch
-from song_mood_final.engine.compute_embeddings import load_embeds
-from song_mood_final.engine.search_engine import SearchEngine
-from song_mood_final.config.config import tok, device, base_text_model, load_config, save_config
-from song_mood_final.models.text_to_features_model import TextToSpotifyFeatures
-from song_mood_final.models.train_model import load_dataframe
+from src.song_src.engine.compute_embeddings import load_embeds
+from src.song_src.engine.search_engine import SearchEngine
+from src.song_src.config.config import tok, device, base_text_model, load_config, save_config
+from models.song_model.text_to_features_model import TextToSpotifyFeatures
+from models.song_model.train_model import load_dataframe
 
 
 @st.cache_resource
 def get_album_searcher():
     return AlbumVibeSearcher(
         model_id="mmarkusmalone/album_moods_embedding_stage2",
-        embeddings_path="album_mood_final/backend/building_embedding_data/embeddings.npy",
-        metadata_path="album_mood_final/backend/building_embedding_data/embeddings_metadata.csv",
+        embeddings_path="data/album_data/building_embedding_data/embeddings.npy",
+        metadata_path="data/album_data/building_embedding_data/embeddings_metadata.csv",
         use_verbose=False
     )
 
@@ -183,7 +183,7 @@ with tab_spotify:
         spot_model = TextToSpotifyFeatures(base_text_model, out_dim=out_dim).to(device)
 
         # 3. Load trained weights
-        state_path = "song_mood_final/models/spotify_model_weights.pth"
+        state_path = "models/song_model/spotify_model_weights.pth"
         if not os.path.exists(state_path):
             raise FileNotFoundError(f"Required weights file missing at {state_path}.")
         state = torch.load(state_path, map_location=device)

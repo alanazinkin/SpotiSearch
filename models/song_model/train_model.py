@@ -1,10 +1,10 @@
 from torch.utils.data import DataLoader
-from song_mood_final.models.text_to_features_model import TextToSpotifyFeatures, SongTextDataset
+from models.song_model.text_to_features_model import TextToSpotifyFeatures, SongTextDataset
 import pandas as pd
 import torch
 from torch import nn
-from song_mood_final.cleanData.clean_dataframe import clean_dataframe
-from song_mood_final.config.config import device, base_text_model, load_config, save_config
+from src.song_src.cleanData.clean_dataframe import clean_dataframe
+from src.song_src.config.config import device, base_text_model, load_config, save_config
 from sklearn.model_selection import train_test_split
 
 
@@ -80,7 +80,7 @@ def train_model(model, train_loader, test_loader, loss_fn, opt, n_epochs: int = 
 
 
 if __name__ == "__main__":
-    df = load_dataframe("../data/spotify_all_songs_with_review_cols_updated.csv")
+    df = load_dataframe("../../data/song_data/spotify_all_songs_with_review_cols_updated.csv")
     feature_cols, targets, texts, song_text_to_embed = update_df(df)
 
     train_texts, test_texts, train_targets, test_targets = train_test_split(

@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-from song_mood_final.engine.gemini_description_generator import generate_descriptions_for_indices
+from src.song_src.engine.gemini_description_generator import generate_descriptions_for_indices
 import numpy as np
 
 class SearchEngine:

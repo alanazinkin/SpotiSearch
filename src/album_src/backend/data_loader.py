@@ -2,7 +2,7 @@ import json
 import pandas as pd
 import re
 
-with open("data_cleaning_data/music_descriptors_3000.csv", "r") as f:
+with open("../../../data/album_data/data_cleaning_data/music_descriptors_3000.csv", "r") as f:
     text = f.read()
 
 items = [x.strip() for x in text.split(",")]
@@ -19,7 +19,7 @@ genres_descriptors_set = {x.lower() for x in genres_descriptors_set}
 # Load adjectives from Adjectives.csv into a separate set
 adjectives_set = set()
 try:
-    adj_df = pd.read_csv("data_cleaning_data/Adjectives.csv")
+    adj_df = pd.read_csv("../../../data/album_data/data_cleaning_data/Adjectives.csv")
     # Prefer a column named 'word' or 'Word' if present
     cols_lower = [c.lower() for c in adj_df.columns]
     if "word" in cols_lower:
@@ -44,7 +44,7 @@ except Exception as e:
     print(f"Warning: could not load Adjectives.csv: {e}")
 
 # print(len(genres_descriptors_set))
-df = pd.read_csv("data_cleaning_data/unique_albums.csv")
+df = pd.read_csv("../../../data/album_data/data_cleaning_data/unique_albums.csv")
 
 def extract_mood_words_skip_negation(text, word_set):
     """Extract words from word_set, skipping any word that follows 'not'."""

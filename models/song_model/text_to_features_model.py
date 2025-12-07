@@ -1,6 +1,6 @@
 from torch import nn
 from torch.utils.data import Dataset
-from song_mood_final.config.config import tok
+from src.song_src.config.config import tok
 
 class SongTextDataset(Dataset):
     def __init__(self, texts, targets):

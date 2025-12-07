@@ -11,7 +11,7 @@ login()
 MODEL_ID = "mmarkusmalone/album_moods_embedding_stage2"
 
 # 1) load CSV
-df = pd.read_csv("building_embedding_data/albums_in_both.csv")  # columns: artist,title,year_released,rating,review,genre,query,album_id
+df = pd.read_csv("../../data/album_data/building_embedding_data/albums_in_both.csv")  # columns: artist,title,year_released,rating,review,genre,query,album_id
 print(f"Loaded {len(df)} albums for embedding.")
 # 2) build text field you want to embed (tweak to taste)
 def build_text(row):

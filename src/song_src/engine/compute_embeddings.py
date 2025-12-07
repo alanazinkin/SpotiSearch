@@ -5,9 +5,9 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from song_mood_final.config.config import base_text_model, device, tok
-from song_mood_final.engine.data_utils import generate_text_for_embedding
-from song_mood_final.models.text_to_features_model import TextToSpotifyFeatures
+from src.song_src.config.config import base_text_model, device, tok
+from src.song_src.engine.data_utils import generate_text_for_embedding
+from models.song_model.text_to_features_model import TextToSpotifyFeatures
 
 BATCH_SIZE = 32
 
@@ -98,7 +98,7 @@ def main():
     ]
     out_dim = len(feature_cols)
     spot_model = TextToSpotifyFeatures(base_text_model, out_dim=out_dim).to(device)
-    state = torch.load("../models/spotify_model_weights.pth", map_location=device)
+    state = torch.load("../../../models/song_model/spotify_model_weights.pth", map_location=device)
     spot_model.load_state_dict(state)
     spot_model.eval()
 
