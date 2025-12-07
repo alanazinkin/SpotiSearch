@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from src.song_src.config.config import base_text_model, device, tok
+from models.song_model.sentence_embedding_model import base_text_model, device, tok
 from src.song_src.engine.data_utils import generate_text_for_embedding
 from models.song_model.text_to_features_model import TextToSpotifyFeatures
 

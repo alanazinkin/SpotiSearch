@@ -4,7 +4,8 @@ import pandas as pd
 import torch
 from torch import nn
 from src.song_src.cleanData.clean_dataframe import clean_dataframe
-from src.song_src.config.config import device, base_text_model, load_config, save_config
+from src.song_src.config.config import load_config, save_config
+from models.song_model.sentence_embedding_model import device, base_text_model
 from sklearn.model_selection import train_test_split
 
 

@@ -5,7 +5,8 @@ from src.album_src.backend.query_data import AlbumVibeSearcher
 import torch
 from src.song_src.engine.compute_embeddings import load_embeds
 from src.song_src.engine.search_engine import SearchEngine
-from src.song_src.config.config import tok, device, base_text_model, load_config, save_config
+from src.song_src.config.config import load_config, save_config
+from models.song_model.sentence_embedding_model import tok, device, base_text_model
 from models.song_model.text_to_features_model import TextToSpotifyFeatures
 from models.song_model.train_model import load_dataframe
 

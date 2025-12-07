@@ -1,6 +1,6 @@
 from torch import nn
 from torch.utils.data import Dataset
-from src.song_src.config.config import tok
+from models.song_model.sentence_embedding_model import tok
 
 class SongTextDataset(Dataset):
     def __init__(self, texts, targets):

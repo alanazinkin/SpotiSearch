@@ -92,7 +92,6 @@ def init_default_searcher(force_reload: bool = False, **kwargs) -> AlbumVibeSear
     return _default_searcher
 
 def query_vibe_console(vibe_text: str, top_k: int = 5) -> List[Dict]:
-    """Old API kept for compatibility: uses a module-level cached searcher."""
     searcher = init_default_searcher()
     return searcher.query(vibe_text, top_k=top_k)
 
