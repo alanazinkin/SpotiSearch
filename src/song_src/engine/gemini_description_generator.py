@@ -1,16 +1,17 @@
 import json
-import google.generativeai as genai
+from google import genai
 import streamlit as st
-from dotenv import load_dotenv
-load_dotenv()
 
-# Configure genai with the API key
 gemini_api_key = st.secrets["gemini_api_key"]
 if not gemini_api_key:
     raise ValueError("GEMINI_API_KEY not found. Check your .env file.")
 
-genai.configure(api_key=gemini_api_key)
-gemini_model = genai.GenerativeModel("gemini-2.5-flash")
+try:
+    client = genai.Client(api_key=gemini_api_key)
+
+except Exception as e:
+    st.error(f"Error initializing Gemini Client: {e}")
+    st.stop()
 
 def get_song_descriptions_batch(tracks):
     items_text = "\n".join(
@@ -37,8 +38,9 @@ Songs:
 {items_text}
 """
 
-    response = gemini_model.generate_content(
-        prompt,
+    response = client.models.generate_content(
+        model='gemini-2.0-flash-001',
+        contents=prompt,
     )
 
     text = response.text.strip()
