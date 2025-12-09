@@ -82,7 +82,7 @@ def train_model(model, train_loader, test_loader, loss_fn, opt, n_epochs: int = 
 
 if __name__ == "__main__":
     df = load_dataframe("../../data/song_data/spotify_all_songs_with_review_cols_updated.csv")
-    feature_cols, targets, texts, song_text_to_embed = update_df(df)
+    df, feature_cols, targets, texts, song_text_to_embed = update_df(df)
 
     train_texts, test_texts, train_targets, test_targets = train_test_split(
         texts,
