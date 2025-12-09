@@ -22,7 +22,7 @@ We leverage 2 separate models: songs are retrieved by predicting the Spotify fea
 
 ### Evaluation
 #### Song Search
-1. During training, we were able to achieve an error rate of 59% on our test set
+1. During training, we were able to achieve an error rate of 63.65% on our test set
 2. Although it is challenging to evaluate the recall or precision of the generative search model, the songs returned for a variety of queries tend to align with the prompt. Although the search mechanism does not perform perfectly when the prompt is out of distribution, many prompts tend to produce plausible search results.
 
 **For example:**

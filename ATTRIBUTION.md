@@ -2,6 +2,7 @@
 1. OpenAI's ChatGPT was used to generate a large portion of the code in clean_data.py
 2. OpenAI's ChatGPT was used to generate a large portion of the code in app.py, especially assistance with Streamlit syntax
 3. Google's Gemini was used to generate a large portion of the code in clean_dataframe.py
+4. Google's Gemini was used to assist in generating the code for the patience incrementing in train_model.py
 
 **External Libraries Used**
 1. [Google's Gemini 2.5-flash model](https://deepmind.google/models/gemini/flash/)

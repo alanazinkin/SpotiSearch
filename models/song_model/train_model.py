@@ -52,6 +52,7 @@ def evaluate_model(model, loader, loss_fn):
 train_losses = []
 val_losses = []
 
+'''Leveraged Gemini LLM to assist with patience'''
 def train_model(
     model,
     train_loader,
