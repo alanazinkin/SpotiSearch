@@ -10,22 +10,29 @@ We leverage 2 separate models: songs are retrieved by predicting the Spotify fea
 ### Quick Start
 - Clone GitHub Repository 
 - Install requirements from txt file
-- To run album search model,
-- To run song search model, create .env file with GEMINI_API_KEY=’your_api_key’
-- Run the command 'streamlit run app.py' in the terminal to launch song search app
+- Navigate to our webapp linked [here](https://spotisearch.streamlit.app/)
+- Or, run the command 'streamlit run app.py' from the root of the repository in the terminal to launch song search app
 
 #### To Use Your Own Music Dataset
-- Export your Spotify data using Exportify 
+1. Export your Spotify data using [Exportify](https://exportify.net/) 
+
 ##### For Song Search:
-- Add csv file to data folder
-- Run the main method in extract_embeddings_from_csv.py to compute and store the song embeddings
-- Update the file path(s) in config.json to your data file path and newly computed embeddings file path
-- Relaunch app.py!
+2. Add csv file to data folder
+3. Run the main method in extract_embeddings_from_csv.py to compute and store the song embeddings
+4. Update the file path(s) in config.json to your data file path and newly computed embeddings file path
+5. Relaunch app.py!
 
 ##### For Album Search:
+2. Navigate to create_my_albums.py and change FILE_MYALBUMS to your data file and run the file
+3. In music_loader.py, login to Huggingface and retrieve an API token
+4. Update the dataframe on line 14 to point to your albums datafile
+5. Relaunch the app!
 
 
 ### Video Links
+1. [Demo Video](https://www.youtube.com/watch?v=CCkN5tFVGAg)
+
+2. [Technical Walkthrough](https://www.youtube.com/watch?v=1IsiDmNnPcs)
 
 
 ### Evaluation
