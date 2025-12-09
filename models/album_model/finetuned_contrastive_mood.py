@@ -33,21 +33,12 @@ Original file is located at
 #
 
 import os
-import math
-import random
-from pathlib import Path
-from tqdm.auto import tqdm
-
-import numpy as np
 import pandas as pd
-
 import torch
 from sklearn.model_selection import train_test_split
-
 from sentence_transformers import SentenceTransformer, InputExample, losses, util
 from torch.utils.data import DataLoader
-
-import faiss  # faiss-cpu
+import faiss
 
 # ---------------- CONFIG ----------------
 # Change these paths if needed
