@@ -1,4 +1,4 @@
-'''Google's Gemini Model Used to generate code to process a user's dataframe'''
+"""Google's Gemini Model Used to generate code to process a user's dataframe"""
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
