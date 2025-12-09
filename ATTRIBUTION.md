@@ -11,7 +11,6 @@
 5. [Pandas](https://pandas.pydata.org/)
 6. [scikit-learn](https://scikit-learn.org/stable/)
 7. [NumPy](https://numpy.org/)
-8. [dotenv](https://pypi.org/project/python-dotenv/)
 9. [tqdm](https://pypi.org/project/tqdm/)
 
 **Datasets Used**
