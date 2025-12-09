@@ -22,7 +22,7 @@ We leverage 2 separate models: songs are retrieved by predicting the Spotify fea
 
 ### Evaluation
 #### Song Search
-1. During training, we were able to achieve an error rate of 63.65% on our test set
+1. During training, we were able to achieve a MSE error rate of 63.65% on our test set. Although this error rate is relatively high, it makes sense given that we're trying to predict Spotify features from text, which may not exactly align. With more data, we would be able to train on more examples and likely achieve better results. In an ideal world, every song has its own review, and we can train on the entire database of songs in Spotify, but this would be extremely resource expensive. Thus, we used the data available to us, combining various datasets and leveraging LLM calls to augment our data as much as possible.
 2. Although it is challenging to evaluate the recall or precision of the generative search model, the songs returned for a variety of queries tend to align with the prompt. Although the search mechanism does not perform perfectly when the prompt is out of distribution, many prompts tend to produce plausible search results.
 
 **For example:**
@@ -39,7 +39,7 @@ We leverage 2 separate models: songs are retrieved by predicting the Spotify fea
 Upon listening, the songs align well with the query and are stronger matches than had we randomly selected 3 songs from the database for both queries
 
 #### Album Search
-1. During training, we fine tuned a stage 1 contrastive model with no hard negatives measured by MultipleNegativesRankingLoss which uses many negatives per batch and a log-softmax over similarities. This basic model achieved a trianing loss of .678, which is high because the model uses all other positives in the batch as negatives and is only used to get a basic structure of global relations in our custom embedding space.
+1. During training, we fine-tuned a stage 1 contrastive model with no hard negatives measured by MultipleNegativesRankingLoss which uses many negatives per batch and a log-softmax over similarities. This basic model achieved a trianing loss of .678, which is high because the model uses all other positives in the batch as negatives and is only used to get a basic structure of global relations in our custom embedding space.
 2. We used a stage 2 triplet contrastive model, which utilizes hard negative triplets to further train the stage 1 model and TripletLoss to measure loss. TripletLoss compares only one positive and one negative per triplet and achieved a training loss of 0.137, which shows strong fine-grained discrimination in our model as the positives and negatives are well-separated.
 3. For the retrieval itself using the stage 2 model, we used recall to measure the performance of our embedding model. We achieved Recall@1: 0.4404, Recall@5: 0.5923, and Recall@10: 0.6519. 44% Recall@1 means nearly half the queries return the exact correct album as the top result, 59% @5 means over half the queries return the exact correct album in the top 5 resuts, and 65% @10 means that the exact album was returned in the top 10 results 65% of the time. For a mood browsing type interface, this is excellent because users rarely expect one perfect answer.
 

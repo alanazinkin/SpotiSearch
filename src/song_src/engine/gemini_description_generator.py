@@ -4,7 +4,7 @@ import streamlit as st
 
 gemini_api_key = st.secrets["gemini_api_key"]
 if not gemini_api_key:
-    raise ValueError("GEMINI_API_KEY not found. Check your .env file.")
+    raise ValueError("GEMINI_API_KEY not found. Check your .streamlit secrets.toml file.")
 
 try:
     client = genai.Client(api_key=gemini_api_key)
