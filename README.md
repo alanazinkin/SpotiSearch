@@ -13,21 +13,6 @@ We leverage 2 separate models: songs are retrieved by predicting the Spotify fea
 - Navigate to our webapp linked [here](https://spotisearch.streamlit.app/)
 - Or, run the command 'streamlit run app.py' from the root of the repository in the terminal to launch song search app
 
-#### To Use Your Own Music Dataset
-1. Export your Spotify data using [Exportify](https://exportify.net/) 
-
-##### For Song Search:
-2. Add csv file to data folder
-3. Run the main method in extract_embeddings_from_csv.py to compute and store the song embeddings
-4. Update the file path(s) in config.json to your data file path and newly computed embeddings file path
-5. Relaunch app.py!
-
-##### For Album Search:
-2. Navigate to create_my_albums.py and change FILE_MYALBUMS to your data file and run the file
-3. In music_loader.py, login to Huggingface and retrieve an API token
-4. Update the dataframe on line 14 to point to your albums datafile
-5. Relaunch the app!
-
 
 ### Video Links
 1. [Demo Video](https://www.youtube.com/watch?v=CCkN5tFVGAg)
@@ -66,6 +51,21 @@ Upon listening, the songs align well with the query and are stronger matches tha
    5. Catch That Totem! (1998-2005) — Alog | Electronic / Jazz / Rock
    6. A Little Big — Bobby and Blumm 
 
+#### To Use Your Own Music Dataset
+1. Export your Spotify data using [Exportify](https://exportify.net/) 
+
+##### For Song Search:
+2. Add csv file to data folder
+3. Run the main method in extract_embeddings_from_csv.py to compute and store the song embeddings
+4. Update the file path(s) in config.json to your data file path and newly computed embeddings file path
+5. Relaunch app.py!
+
+##### For Album Search:
+2. Navigate to create_my_albums.py and change FILE_MYALBUMS to your data file and run the file
+3. In music_loader.py, login to Huggingface and retrieve an API token
+4. Update the dataframe on line 14 to point to your albums datafile
+5. Update the embeddings file path in app.py on line 18 to point to your newly saved embeddings
+5. Relaunch the app!
 
 ### Individual Contributions
 Alana developed and trained the song search model and Maya developed and trained the album search model. They collaborated on data collection and techniques for cleaning and augmenting the dataset and brainstorming creative ways to both embed the songs/albums and predict the best matches. They also built the web app together using Streamlit. They also collaborated on the final project demo and write-up. 
